@@ -1,0 +1,104 @@
+---
+title: "dataProject"
+author: "Matthew Reyes"
+date: "3/2/2022"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Questions
+
+1. What is the problem your are addressing with these data? State the question you are trying
+to answer and let us know what type of question this is in terms of the PPDAC framework.
+
+\newpage
+
+2. What is the target population for your project? Why was this target chosen i.e., what was
+your rationale for wanting to answer this question in this specific population?
+
+\newpage
+
+3. What is the sampling frame used to collect the data you are using? Describe why you think
+this sampling strategy is appropriate for your question. To what group(s) would you feel comfortable
+generalizing the findings of your study and why.
+
+\newpage
+
+4. Write a brief description (1-4 sentences) of the source and contents of your dataset. Provide a
+URL to the original data source if applicable. If not (e.g., the data came from your internship), provide
+1-2 sentences saying where the data came from. If you completed a web form to access the data and
+selected a subset, describe these steps (including any options you selected) and the date you accessed
+the data
+
+\newpage
+
+5. Write code below to import your data into R. Assign your dataset to an object.
+
+```{r importing-data, warning=FALSE, echo=FALSE}
+
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+
+nn_data <- read.csv("NNdata.csv")
+
+head(nn_data)
+
+```
+\newpage
+
+6. Use code in R to answer the following questions:
+
+- What are the dimensions of the dataset?
+```{r dimensions}
+dim(nn_data)
+```
+
+- Provide a list of variable names.
+```{r variable-names}
+vars <- names(nn_data)
+vars
+```
+
+- Print the first six rows of the dataset.
+
+```{r head}
+firstSix <- head(nn_data)
+firstSix
+
+```
+
+\newpage
+
+7. Use the data to demonstrate a statistical concept from Part I of the course. Describe the
+concept that you are demonstrating and interpret the findings. This should be a combination of code
+and written explanation.
+
+```{r summary-tables}
+# factor Exposure level
+# nn_data <- nn_data$Exp_Level
+
+nn_data$Exp_Level 
+
+summary <- nn_data %>%
+  group_by(Exp_Level)
+  mutate()
+
+```
+
+```{r summary-plots}
+boxWhisker <- ggplot(nn_data, aes(y = Glucose, color = Sex)) +
+  geom_boxplot() +
+  labs(title = "Summary",
+       caption = "Data from ...",
+       y = "Glucose in mg/d",
+       x = "Sex"
+       ) +
+  theme_minimal(base_size = 15)
+
+boxWhisker
+```
+
