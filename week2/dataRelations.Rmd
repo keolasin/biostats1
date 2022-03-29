@@ -1,0 +1,175 @@
+# Lecture 5: Exploring relationships between two variables
+
+Learning objectives:
+
+- Explore the relationship between two quantitative variables
+  - directionality
+  - association vs causation
+- Make scatter plots to look at relationships visually
+  - using `geom_point()`
+- Use the correlation coefficient to quantify the strength of linear relationships
+  - calculate correlations using `cor()`
+
+## Explanatory and response variables
+
+x typically an explanatory variable, y is response
+
+bi-directional:
+
+- "x predicts y", or "y predicts x"
+- "x is associated with y", or "y is associated with x"
+
+unidirectional:
+
+"x causes y"
+
+### Which var is x and which is y?
+
+In prediction, we generally use X to denote the variable we are using to predict the variable of interest (Y)
+
+In causation, we generally use X to denote the explanatory (independent) and Y to denote the response (dependent)
+
+Graphically, the X variable is on the X (horizontal) axis and the Y variable is the vertical axis (y-axis)
+
+## How to investigate causation?
+
+## Scatterplots
+
+Good way to visualize a relationship between 2 variables
+
+When we look at a scatterplot we want to evaluate:
+
+- the overall pattern of the dots
+- any notable exceptions to the pattern
+- direction (positive or negative)
+- form (straight line or curved)
+- strength (how closely the points follow a line)
+- are there any obvious outliers
+
+### R for scatterplots
+
+```r
+plot_name <- ggplot(data = dataset, aes(x=variable, y=yVariable)) +
+  geom_point(na.rm= = TRUE) +
+  theme_minimal(base_size = 15) +
+  labs(x = "xLabel",
+       y = "yLabel",
+       title = "Title"
+  )
+
+```
+
+### Example with nhanes dataset
+
+Relationship between systolic and diastolic BP
+
+```r
+nhanes_dataNA <- read_csv("nhanes.csv")
+# next line removes NA values from the dataset
+nhanes_data <- nhanes_dataNA[rowSums(is.na(nhanes_dataNA[ , 15:18])) ==0, ]
+# names() tells us the variable names in the dataframe
+names(nhanes_data)
+```
+
+Scatterplot of BP
+
+```r
+nhanes_scatter <- ggplot(data = nhanes_data, aes(x = bpxsy1, y = bpxdi1)) +
+  geom_point(na.rm=TRUE) + theme_minimal(base_size = 15) +
+  labs(x = "Sys BP",
+       y = "Dias BP",
+       title = "NHANES data")
+```
+
+With colors:
+
+```r
+nhanes_scatter <- ggplot(data = nhanes_data, aes(x = bpxsy1, y = bpxdi1)) +
+  # below line adds color to the points according to the gender variable, and `na.rm = TRUE` removes NA values from the scatterplot
+  geom_point(aes(col=gender), na.rm=TRUE) + theme_minimal(base_size = 15) +
+  labs(x = "Sys BP",
+       y = "Dias BP",
+       title = "NHANES data")
+```
+
+### Example with manatee dataset
+
+```r
+mana_scatter <- ggplot(data = mana_data, aes(x = powerboats, y = deaths)) +
+  # adding color gradient based on the year of the death
+  geom_point(aes(col=year)) +
+  theme_minimal(base_size = 15)
+```
+
+## Exploratory analysis using scatterplots
+
+Lean body mass and metabolic rate: problem and plan
+
+**Problem** is lean body mass (person's weight after removing the fat) associated with metabolic rate (kCal burned in 24 hrs)?
+
+**Plan** a diet study was conducted on 12 women and 7 men that measured lean body weight and metabolic rate for each individual
+
+```r
+weight_scatter <- ggplot(weight_data, aes(x = mass, y = rate)) + 
+  geom_point() +
+  theme_minimal(base_size = 15)
+
+```
+
+When this data is plotted, appears to have a positive, linear relationship.
+
+When colored by gender, might notice that males have higher mass/rate relationship, and females have lower mass/rate relationship.
+
+What if we want to split and create separate plots for men and women?
+
+```r
+weight_scatter <- ggplot(weight_data, aes(mass, rate)) +
+  geom_point(aes(col=gender)) +
+  # facet wrap makes plots appear side by side in the same large plot split by gender
+  facet_wrap(~ gender) +
+  theme_minimal(base_size = 15)
+```
+
+## Pearson's correlation coefficient
+
+We can also use a numeric value to describe the direction and strength of an association
+
+For **linear associations**, we use pearson's correlation coefficient (r) to quantify the strength of a linear relationship between two vars
+
+The correlation between x and y is:
+
+$r= \frac{1}{n-1}\sum^{n}_{i=1} (\frac{x_i - \bar{x}}{s_x})(\frac{y_i - \bar{y}}{s_y})$
+
+### Properties of r
+
+Always a number between -1 and 1
+
+- -1: a perfect, negative linear association
+- 1: a perfect, positive linear association
+- 0: no linear association
+
+It's used to measure the association between two quantitative variables
+
+Only useful for linear associations!
+
+### pearson's coefficient in R
+
+```r
+correlation_coefficient <- dataset %>%
+  # cor function in dplyr::summarize() calculates the r for variables x, y
+  summarize(newvar = cor(xvar, yvar))
+```
+
+Manatee example:
+
+```r
+mana_cor <- mana_data %>%
+  summarize(corr_mana = cor(powerboats, deaths))
+mana_cor
+```
+
+### Other properties of Pearson's coefficient
+
+r is not resistant to outliers, the correlation coefficient will be affected.
+
+Correlations for average measures is typically stronger than correlations for individual data

@@ -23,8 +23,12 @@ setting up plot: `ggplot(id_data, aes=(x = disease, y = percent_cases)) +`, aes 
 make a bar chart: `geom_bar(stat = "identity")` identity tells us the quantity (percent) of cases
 styling: `base_size` controls the font size
 
-visually informative: `id_data <- id_data %>%
-  mutate(disease_ordered = fct_reorder(disease, percent_cases, .desc))`, now the chart is ordered descending
+visually informative: 
+```r
+id_data <- id_data %>%
+  mutate(disease_ordered = fct_reorder(disease, percent_cases, .desc)) # now the chart is ordered descending
+```
+
 coloring in geom_bar: `geom_bar(stat= "identity", aes(fill=type))` to link the bar's fill to the disease type
 
 ## visualizing quantitative variables using histograms
@@ -67,11 +71,15 @@ Often, these plots are used to observe cycles/trends
 
 if we're looking just for white men in california, we want to use the `filter()` function to select certain criteria
 
-`wm_cali <- le_data %>% 
+```r
+wm_cali <- le_data %>% 
   filter(state == "California",
   sex == "Male",
-  race == "White")`
-wm_cali is now a dataset with just white men in california
+  race == "White")
+```
+`wm_cali` is now a dataset with just white men in california
+
+## Line and point graphs
 
 ```r
 ggplot(data = wm_cali, aes(x = year, y = LE)) +
@@ -101,5 +109,3 @@ ggplot(data = wm_cali, aes(x = year, y = LE)) +
 `fct_reorder(var1,var2)` to reorder the categorical variable (var1) by a numeric variable (var2)
 `geom_point()` makes dot plots
 `geom_line()` make line plots
-    
-    
