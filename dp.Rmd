@@ -1,0 +1,186 @@
+---
+title: "Data Project Part 1: Exploring relationship between exposure to Uranium and Renal Disease"
+author: "Castle Funatake, Vicki Ip, Meredith Potts, Matthew Reyes, Anastasia Roloff"
+date: "3/6/2022"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Questions
+
+1. What is the problem your are addressing with these data? State the question you are trying to answer and let us know what type of question this is in terms of the PPDAC framework.
+
+The problem that is being addressed with this dataset is whether chronic ingestion of uranium in drinking water affects kidney function. In terms of the PPDAC framework, this would be a cause and effect type, or etiologic, question. Uranium concentration in water is the ordinal exposure variable and has been quantified as either low exposure (<1 microgram/L) or high exposure (2-781 microgram/L), with the chronicity of exposure measured in terms of years of residence – between 1 and 33 years in the low exposure group, and 3 to 59 years in the high exposure group. Uranium concentration in urine was also measured as a continuous exposure variable. The response variables correspond to kidney function indicators (glucose, creatinine, protein, beta-2-microglobulin (BMG)) and markers of cell toxicity (ALP, GGT, LDH, NAG), which were all sampled via urine.
+
+\newpage
+
+2. What is the target population for your project? Why was this target chosen i.e., what was your rationale for wanting to answer this question in this specific population?
+
+The target population for this study is adults at risk for exposure to uranium through drinking water. The study population was selected from a village in Nova Scotia known to have elevated levels of uranium in water from private wells and a group of healthy volunteers from Ottawa, Ontario who received municipally supplied drinking water.  All subjects, regardless of location, were grouped according to levels of uranium in their drinking water. 
+Our group is concurrently working on a project in 200F studying the effects of uranium mining on the Navajo Nation. The land of the Navajo is naturally rich in uranium, thus, despite having been a major source of uranium mining, many residents living far from abandoned mines are still exposed to naturally-occurring uranium in their drinking water as a majority are reliant on unregulated water sources. Although the results from this dataset cannot be extrapolated onto Navajo residents, it does provide some insight into whether differing levels of uranium exposure affect kidney function in humans.
+
+
+\newpage
+
+3. What is the sampling frame used to collect the data you are using? Describe why you think this sampling strategy is appropriate for your question. To what group(s) would you feel comfortable generalizing the findings of your study and why.
+
+The sampling population were adult volunteers aged 13-87 either from a village in Nova Scotia with private wells that had uranium content above the Canadian guidelines of 100 microgram/L or from Ottawa, Ontario with access to treated municipal water with uranium levels less than 1 microgram/L. The baseline uranium levels were collected at the beginning of the study through sampling of tap and well water. The authors attempted to have an even distribution of sex and ages by matching healthy participants from Ottawa to those from Nova Scotia. 24 hour urinary samples were taken from each participant and measured for levels of Uranium indicators of kidney function and nephrotoxicity. The data from participants was grouped according to low and high uranium exposure, regardless of place of residence or source of drinking water. Both urine levels of uranium were analyzed along with concentrations of uranium in local drinking water supplies. The most recent period of exposure was used as the exposure window for drinking water concentrations, since wells were remediated over time. The outcomes measured were biomarkers of kidney function such as urine volume, microglobulin, glucose, and albumin, as well as specific enzymes to determine local cell damage.
+
+Ideally this sample population could be representative of any target population of adults exposed to high levels of uranium through drinking water, however the study sample is small (50 participants) and no data were collected on socioeconomic status or other demographic characteristics, making it difficult to generalize the findings beyond the adult populations in these two cities in Canada. Consequent uranium levels were measured through duplicate portions of food and water that each participant consumed.  
+This sampling strategy is appropriate for the question of the study because they were trying to measure kidney effects due to chronic uranium exposure in differing levels of drinking water, which in theory should be similar across humans based on the toxicokinetics of uranium.  However, including more participant characteristics and disaggregated data could help the study be more generalizable to a wider population.
+
+
+\newpage
+
+4. Write a brief description (1-4 sentences) of the source and contents of your dataset. Provide a
+URL to the original data source if applicable. If not (e.g., the data came from your internship), provide
+1-2 sentences saying where the data came from. If you completed a web form to access the data and
+selected a subset, describe these steps (including any options you selected) and the date you accessed
+the data
+
+The dataset was obtained from the study by Zamora et al. (1998):
+
+
+Zamora, M. L., Tracy, B. L., Zielinski, J. M., Meyerhof, D. P., & Moss, M. A. (1998). Chronic ingestion of uranium in drinking water: A study of kidney bioeffects in humans. Toxicological Sciences: An Official Journal of the Society of Toxicology, 43(1), 68–77. https://doi.org/10.1006/toxs.1998.2426.
+
+
+
+\newpage
+
+5. Write code below to import your data into R. Assign your dataset to an object.
+
+```{r importing-data, warning=FALSE, echo=FALSE}
+
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(readr)
+
+nn_data <- read.csv("NNdata.csv")
+
+head(nn_data)
+
+```
+\newpage
+
+6. Use code in R to answer the following questions:
+
+- What are the dimensions of the dataset?
+```{r dimensions, warning=FALSE, echo=FALSE}
+dim(nn_data)
+```
+
+- Provide a list of variable names.
+```{r variable-names, warning=FALSE, echo=FALSE}
+vars <- names(nn_data)
+vars
+```
+
+- Print the first six rows of the dataset.
+
+```{r head, warning=FALSE, echo=FALSE}
+firstSix <- head(nn_data)
+firstSix
+
+```
+
+\newpage
+
+7. Use the data to demonstrate a statistical concept from Part I of the course. Describe the concept that you are demonstrating and interpret the findings. This should be a combination of code and written explanation.
+
+First to explore the data, we checked the mean values for each of the variables, grouped by exposure level (`Exp_level`). Below is the summary table with those findings:
+
+```{r summary-tables, warning=FALSE, echo=FALSE}
+# factor Exposure level
+
+nn_data$Exp_Level <- as.factor(nn_data$Exp_Level)
+
+summary <- nn_data %>%
+  group_by(Exp_Level) %>%
+  summarize(
+            uranium_mean = mean(U_intake),
+            glucose_mean = mean(Glucose),
+            creatinine_mean = mean(Creatinine),
+            protein_mean = mean(Protein),
+            ALP_mean = mean(ALP),
+            GGT_mean = mean(GGT),
+            LDH_mean = mean(LDH),
+            NAG_mean = mean(NAG),
+            BMG_mean = mean(BMG)
+            )
+summary
+```
+
+Next, we visualized the data by graphing using a scatterplot the observed urine uranium concentration levels (`U_intake`) with glucose (`Glucose`) as a response variable. We also grouped the individual data points to visualize if there was any discrepancy in the relationship based on Sex (`Sex`). That scatter plot is depicted below:
+
+```{r scatterplot1, warning = FALSE, echo = FALSE}
+sc_plot <- ggplot(nn_data, aes(x= U_intake, y = Glucose)) +
+  geom_point(aes(col = Sex)) +
+  theme_minimal(base_size = 15)
+sc_plot
+```
+
+Next, we plotted a histogram of the same uranium intake concentration. Noticing that the below histogram was right-skewed and had a tall unimodal peak at the lowest concentrations of uranium, we then did a log transformation of that variable and subsequently visualized the initial histogram of uranium concentration, except now using the log-transformed uranium concentration variable (`log_U_intake`).
+
+```{r histograms, warning = FALSE, echo = FALSE}
+histo <- ggplot(nn_data, aes(x = U_intake))+
+  geom_histogram(binwidth = 50) +
+  theme_minimal(base_size = 15)
+histo
+
+# we see the data is right-skewed with a large unimodal peak at the lowest uranium concentrations, so we perform a log-transform of the U_intake variable:
+
+nn_data_logged <- nn_data %>% 
+  mutate(log_U_intake = log(U_intake))
+
+# log histogram
+histo_log <- ggplot(nn_data_logged, aes(x = log_U_intake))+
+  geom_histogram(binwidth = 0.5) +
+  theme_minimal(base_size = 15)
+
+histo_log
+```
+
+Then, wanting to re-visit and determine if there was any relationship between the log-transformed uranium intake and glucose, we re-created the scatter plot using those two variables, and created a linear regression model with a best fitting line for the scatter plot. The Pearson's correlation was `0.42`. The linear model produced a intercept of `60.82` and a slope of `15.12`.
+
+```{r correlations, warning=FALSE, echo=FALSE}
+# Pearson's correlation
+correlation <- nn_data_logged %>%
+  summarize(cor_gluc_U = cor(log_U_intake, Glucose))
+correlation
+
+# linear model for log of U_intake and Glucose
+reg_model <- lm(Glucose ~ log_U_intake, data = nn_data_logged)
+reg_model
+
+```
+
+```{r summary-plots, warning=FALSE, echo=FALSE}
+
+# scatter plot with the regression line
+sc_plot_log <- ggplot(nn_data_logged, aes(x = log_U_intake, y = Glucose))+
+  geom_point(aes(col=Exp_Level)) +
+  geom_abline(slope = 15.12, intercept = 60.82) +
+  theme_minimal(base_size = 15)
+sc_plot_log
+```
+
+Finally, to further summarize the relationship, we created a box and whisker plot of glucose grouped by exposure level (`Exp_Level`) to visualize any association.
+
+```{r box-whisker-plot, warning=FALSE, echo=FALSE}
+# box-whisker plot
+boxWhisker <- ggplot(nn_data, aes(y = Glucose, color=Exp_Level)) +
+  geom_boxplot() +
+  labs(title = "Summary",
+       caption = "Data from Zamora",
+       y = "Glucose in mg/d"
+       ) +
+  theme_minimal(base_size = 15)
+
+boxWhisker
+
+```
+
