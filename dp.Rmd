@@ -1,7 +1,7 @@
 ---
 title: "Data Project Part 1: Exploring relationship between exposure to Uranium and Renal Disease"
 author: "Castle Funatake, Vicki Ip, Meredith Potts, Matthew Reyes, Anastasia Roloff"
-date: "3/6/2022"
+date: "03/06/2022"
 output: pdf_document
 ---
 
@@ -102,16 +102,41 @@ summary <- nn_data %>%
   group_by(Exp_Level) %>%
   summarize(
             uranium_mean = mean(U_intake),
+            uranium_median = median(U_intake),
+            uranium_sd = sd(U_intake),
             glucose_mean = mean(Glucose),
+            glucose_median = median(Glucose),
+            glucose_sd = sd(Glucose),
             creatinine_mean = mean(Creatinine),
+            creatinine_median = median(Creatinine),
+            creatinine_sd = sd(Creatinine),
             protein_mean = mean(Protein),
             ALP_mean = mean(ALP),
             GGT_mean = mean(GGT),
             LDH_mean = mean(LDH),
             NAG_mean = mean(NAG),
-            BMG_mean = mean(BMG)
             )
 summary
+
+summary_ungrouped <- nn_data %>%
+  summarize(
+            uranium_mean = mean(U_intake),
+            uranium_median = median(U_intake),
+            uranium_sd = sd(U_intake),
+            glucose_mean = mean(Glucose),
+            glucose_median = median(Glucose),
+            glucose_sd = sd(Glucose),
+            creatinine_mean = mean(Creatinine),
+            creatinine_median = median(Creatinine),
+            creatinine_sd = sd(Creatinine),
+            protein_mean = mean(Protein),
+            ALP_mean = mean(ALP),
+            GGT_mean = mean(GGT),
+            LDH_mean = mean(LDH),
+            NAG_mean = mean(NAG),
+            )
+summary_ungrouped
+# G_mean = 96.08, sd = 80.4045, C_mean = 9.712, sd = 3.415
 ```
 
 Next, we visualized the data by graphing using a scatterplot the observed urine uranium concentration levels (`U_intake`) with glucose (`Glucose`) as a response variable. We also grouped the individual data points to visualize if there was any discrepancy in the relationship based on Sex (`Sex`). That scatter plot is depicted below:
@@ -183,4 +208,113 @@ boxWhisker <- ggplot(nn_data, aes(y = Glucose, color=Exp_Level)) +
 boxWhisker
 
 ```
+
+
+## Part 2 Questions
+
+1. [1 mark] Include your work for Part I.
+Please see all prior pages.
+
+\newpage
+
+2. [2 marks] Describe a quantity you will estimate as an outcome in your problem using probability
+notation. Are you planning to calculate marginal probabilities? Conditional probabilities?
+
+Conditional probabilities of glucose excretion level is >=60 mg/d or <60 mg/d given a high or low exposure
+Conditional probabilities of creatinine excretion level is >=60 mg/d or <60 mg/d given a high or low exposure
+P(High Glucose | High exposure)
+P(High Glucose | Low exposure)
+P(Low Glucose | High exposure)
+P(Low Glucose | Low exposure)
+
+P(High Creatinine | High exposure)
+P(High Creatinine | Low exposure)
+P(Low Creatinine | High exposure)
+P(Low Creatinine | Low exposure)
+
+\newpage
+
+3. [3 marks] Describe the type of theoretical distribution that is relevant for your data.
+i) What type of variable(s) are you investigating (continuous, categorical, ordinal, etc)?
+We are investigating continuous variables.  
+
+ii) What theoretical distribution that we have talked about would potentially be appropriate to use with
+these data (Normal, Binomial, Poisson. . . )
+For the scope learned in this class, we would anticipate it is a normal distribution.  However, the paper explicitly stated that these variables did not model a normal distribution due to failing a Shapiro-Wilk statistical test of normality.
+
+iii) Why is this an appropriate model for the data you are studying?
+Continuous variables cannot be in a binomal or Poisson as it is not a success/failure outcome.
+
+\newpage
+
+4. [4 marks] Use the data you have to demonstrate a statistical concept from Part II of the course. Describe
+the concept that you are demonstrating and interpret the findings. This may include code in R, a visual
+of some kind and text interpretation.
+
+
+
+```{r normal-plots, echo = FALSE, warning = FALSE}
+histo_glucose <- ggplot(nn_data, aes(x = Glucose))+
+  geom_histogram(binwidth = 50) +
+  theme_minimal(base_size = 15)
+histo_glucose
+
+histo_creat <- ggplot(nn_data, aes(x = Creatinine))+
+  geom_histogram(binwidth = 1) +
+  theme_minimal(base_size = 15)
+histo_creat
+
+qq_plot_glucose <- ggplot(nn_data, aes(sample = Glucose)) + 
+  stat_qq() +
+  stat_qq_line() +
+  theme_minimal(base_size = 15)
+qq_plot_glucose
+
+qq_plot_creat <- ggplot(nn_data, aes(sample = Creatinine)) + 
+  stat_qq() +
+  stat_qq_line() +
+  theme_minimal(base_size = 15)
+qq_plot_creat
+
+```
+
+```{r rnorm}
+
+
+# G_mean = 96.08, sd = 80.4045, C_mean = 9.712, sd = 3.415
+
+glucose_normal_nSmall <- rnorm(50, 96.08, 80.4045)
+glucose_normal_nBig <- rnorm(200, 96.08, 80.4045)
+glucose_normal_nSmall <- data.frame(glucose_normal_nSmall)
+glucose_normal_nBig <- data.frame(glucose_normal_nBig)
+creatinine_normal <- rnorm(50, 9.712, 3.415)
+creatinine_normal <- data.frame(creatinine_normal)
+
+histo_gluc_norm_small <- ggplot(glucose_normal_nSmall, aes(glucose_normal_nSmall))+
+  geom_histogram(binwidth = 10) +
+  theme_minimal(base_size = 15)
+histo_gluc_norm_small
+
+histo_gluc_norm_big <- ggplot(glucose_normal_nBig, aes(glucose_normal_nBig))+
+  geom_histogram(binwidth = 10) +
+  theme_minimal(base_size = 15)
+histo_gluc_norm_big
+
+
+histo_creat_norm <- ggplot(creatinine_normal, aes(creatinine_normal))+
+  geom_histogram(binwidth = 1) +
+  theme_minimal(base_size = 15)
+histo_creat_norm_small
+# fill this in
+
+histo_creat_norm_big
+# fill this in
+
+```
+## Question 4
+
+We know from our summary statistics that the Glucose and Creatinine continuous response variables have fairly similar respective means and medians (Glucose mean of 96.08, median of 73.75; Creatinine mean of 9.712, median of 8.95), so we might suspect those variables to be normally distributed, since having equal mean and median is a property of that distribution. To help assess normality of these variables in our sample (n = 50), we generated histograms and QQ plots to assess the shape of the distributions. Next, we created a randomly generated normal distribution for each of the two variables using their respective means and standard deviations. Initially, we created these random distributions using a sample size equal to what was performed in our reference study. Observing that the distributions generated with such a small sample size were not necessarily normal distributions, we then created these same normal distributions, but used a larger sample size (n) of 200 to illustrate the Central Limit Theorem.
+
+
+\newpage
 
