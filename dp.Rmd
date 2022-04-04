@@ -53,16 +53,12 @@ Zamora, M. L., Tracy, B. L., Zielinski, J. M., Meyerhof, D. P., & Moss, M. A. (1
 5. Write code below to import your data into R. Assign your dataset to an object.
 
 ```{r importing-data, warning=FALSE, echo=FALSE}
-
 library(dplyr)
 library(tidyr)
 library(ggplot2)
 library(readr)
-
 nn_data <- read.csv("NNdata.csv")
-
 head(nn_data)
-
 ```
 \newpage
 
@@ -84,7 +80,6 @@ vars
 ```{r head, warning=FALSE, echo=FALSE}
 firstSix <- head(nn_data)
 firstSix
-
 ```
 
 \newpage
@@ -95,9 +90,7 @@ First to explore the data, we checked the mean values for each of the variables,
 
 ```{r summary-tables, warning=FALSE, echo=FALSE}
 # factor Exposure level
-
 nn_data$Exp_Level <- as.factor(nn_data$Exp_Level)
-
 summary <- nn_data %>%
   group_by(Exp_Level) %>%
   summarize(
@@ -117,7 +110,6 @@ summary <- nn_data %>%
             NAG_mean = mean(NAG),
             )
 summary
-
 summary_ungrouped <- nn_data %>%
   summarize(
             uranium_mean = mean(U_intake),
@@ -155,17 +147,13 @@ histo <- ggplot(nn_data, aes(x = U_intake))+
   geom_histogram(binwidth = 50) +
   theme_minimal(base_size = 15)
 histo
-
 # we see the data is right-skewed with a large unimodal peak at the lowest uranium concentrations, so we perform a log-transform of the U_intake variable:
-
 nn_data_logged <- nn_data %>% 
   mutate(log_U_intake = log(U_intake))
-
 # log histogram
 histo_log <- ggplot(nn_data_logged, aes(x = log_U_intake))+
   geom_histogram(binwidth = 0.5) +
   theme_minimal(base_size = 15)
-
 histo_log
 ```
 
@@ -176,15 +164,12 @@ Then, wanting to re-visit and determine if there was any relationship between th
 correlation <- nn_data_logged %>%
   summarize(cor_gluc_U = cor(log_U_intake, Glucose))
 correlation
-
 # linear model for log of U_intake and Glucose
 reg_model <- lm(Glucose ~ log_U_intake, data = nn_data_logged)
 reg_model
-
 ```
 
 ```{r summary-plots, warning=FALSE, echo=FALSE}
-
 # scatter plot with the regression line
 sc_plot_log <- ggplot(nn_data_logged, aes(x = log_U_intake, y = Glucose))+
   geom_point(aes(col=Exp_Level)) +
@@ -204,9 +189,7 @@ boxWhisker <- ggplot(nn_data, aes(y = Glucose, color=Exp_Level)) +
        y = "Glucose in mg/d"
        ) +
   theme_minimal(base_size = 15)
-
 boxWhisker
-
 ```
 \newpage
 
@@ -225,13 +208,19 @@ Conditional probabilities of glucose excretion level is high or low given high o
 Conditional probabilities of creatinine excretion level is high or low given high or low exposure. These measures were per day accumulations, since participants had samples taken once in a 24 hour period. 
 
 P(High Glucose | High exposure)
+
 P(High Glucose | Low exposure)
+
 P(Low Glucose | High exposure)
+
 P(Low Glucose | Low exposure)
 
 P(High Creatinine | High exposure)
+
 P(High Creatinine | Low exposure)
+
 P(Low Creatinine | High exposure)
+
 P(Low Creatinine | Low exposure)
 
 \newpage
@@ -247,6 +236,7 @@ these data (Normal, Binomial, Poisson. . . )
 For the scope learned in this class, we would anticipate it is a normal distribution.  However, the paper explicitly stated that these variables did not model a normal distribution due to failing a Shapiro-Wilk statistical test of normality.
 
 iii) Why is this an appropriate model for the data you are studying?
+
 Continuous variables cannot be in a binomial or Poisson as it is not a success/failure outcome.
 
 \newpage
@@ -268,7 +258,6 @@ histo_glucose <- ggplot(nn_data, aes(x = Glucose))+
   )
   
 histo_glucose
-
 histo_creat <- ggplot(nn_data, aes(x = Creatinine))+
   geom_histogram(binwidth = 1) +
   theme_minimal(base_size = 15) +
@@ -277,7 +266,6 @@ histo_creat <- ggplot(nn_data, aes(x = Creatinine))+
     caption = "n=50"
   )
 histo_creat
-
 qq_plot_glucose <- ggplot(nn_data, aes(sample = Glucose)) + 
   stat_qq() +
   stat_qq_line() +
@@ -286,7 +274,6 @@ qq_plot_glucose <- ggplot(nn_data, aes(sample = Glucose)) +
     title = "QQ Plot for Glucose normality"
   )
 qq_plot_glucose
-
 qq_plot_creat <- ggplot(nn_data, aes(sample = Creatinine)) + 
   stat_qq() +
   stat_qq_line() +
@@ -295,30 +282,21 @@ qq_plot_creat <- ggplot(nn_data, aes(sample = Creatinine)) +
     title = "QQ Plot for Creatinine normality"
   )
 qq_plot_creat
-
 ```
 
 ```{r rnorm}
-
-
 # G_mean = 96.08, sd = 80.4045, C_mean = 9.712, sd = 3.415
-
 # glucose normals
-
 glucose_normal_nSmall <- rnorm(50, 96.08, 80.4045)
 glucose_normal_nBig <- rnorm(200, 96.08, 80.4045)
 glucose_normal_nSmall <- data.frame(glucose_normal_nSmall)
 glucose_normal_nBig <- data.frame(glucose_normal_nBig)
-
 # creatinine normals
-
 creatinine_normal_nSmall <- rnorm(50, 9.712, 3.415)
 creatinine_normal_nBig <- rnorm(200, 9.712, 3.415)
 creatinine_normal_nSmall <- data.frame(creatinine_normal_nSmall)
 creatinine_normal_nBig <- data.frame(creatinine_normal_nBig)
-
 # histograms
-
 histo_gluc_norm_small <- ggplot(glucose_normal_nSmall, aes(glucose_normal_nSmall))+
   geom_histogram(binwidth = 10) +
   theme_minimal(base_size = 15) +
@@ -327,7 +305,6 @@ histo_gluc_norm_small <- ggplot(glucose_normal_nSmall, aes(glucose_normal_nSmall
     caption = "Small sample sizes (n=50)"
   )
 histo_gluc_norm_small
-
 histo_gluc_norm_big <- ggplot(glucose_normal_nBig, aes(glucose_normal_nBig))+
   geom_histogram(binwidth = 10) +
   theme_minimal(base_size = 15) +
@@ -336,8 +313,6 @@ histo_gluc_norm_big <- ggplot(glucose_normal_nBig, aes(glucose_normal_nBig))+
     caption = "Large sample sizes (n=200)"
   )
 histo_gluc_norm_big
-
-
 histo_creat_norm_nSmall <- ggplot(creatinine_normal_nSmall, aes(creatinine_normal_nSmall))+
   geom_histogram(binwidth = 1) +
   theme_minimal(base_size = 15) +
@@ -346,7 +321,6 @@ histo_creat_norm_nSmall <- ggplot(creatinine_normal_nSmall, aes(creatinine_norma
     caption = "Small sample sizes (n=50)"
   )
 histo_creat_norm_nSmall
-
 histo_creat_norm_nBig <- ggplot(creatinine_normal_nBig, aes(creatinine_normal_nBig))+
   geom_histogram(binwidth = 1) +
   theme_minimal(base_size = 15) +
@@ -358,4 +332,3 @@ histo_creat_norm_nBig
 ```
 
 \newpage
-
