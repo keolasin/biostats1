@@ -1,7 +1,7 @@
 ---
-title: "Data Project Part 1: Exploring relationship between exposure to Uranium and Renal Disease"
+title: "Data Project Part 2: Exploring relationship between exposure to Uranium and Renal Disease"
 author: "Castle Funatake, Vicki Ip, Meredith Potts, Matthew Reyes, Anastasia Roloff"
-date: "03/06/2022"
+date: "04/03/2022"
 output: pdf_document
 ---
 
@@ -9,7 +9,7 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Questions
+## Part 1 Questions
 
 1. What is the problem your are addressing with these data? State the question you are trying to answer and let us know what type of question this is in terms of the PPDAC framework.
 
@@ -208,11 +208,12 @@ boxWhisker <- ggplot(nn_data, aes(y = Glucose, color=Exp_Level)) +
 boxWhisker
 
 ```
-
+\newpage
 
 ## Part 2 Questions
 
 1. [1 mark] Include your work for Part I.
+
 Please see all prior pages.
 
 \newpage
@@ -220,8 +221,9 @@ Please see all prior pages.
 2. [2 marks] Describe a quantity you will estimate as an outcome in your problem using probability
 notation. Are you planning to calculate marginal probabilities? Conditional probabilities?
 
-Conditional probabilities of glucose excretion level is >=60 mg/d or <60 mg/d given a high or low exposure
-Conditional probabilities of creatinine excretion level is >=60 mg/d or <60 mg/d given a high or low exposure
+Conditional probabilities of glucose excretion level is high or low given high or low exposure.
+Conditional probabilities of creatinine excretion level is high or low given high or low exposure. These measures were per day accumulations, since participants had samples taken once in a 24 hour period. 
+
 P(High Glucose | High exposure)
 P(High Glucose | Low exposure)
 P(Low Glucose | High exposure)
@@ -236,14 +238,16 @@ P(Low Creatinine | Low exposure)
 
 3. [3 marks] Describe the type of theoretical distribution that is relevant for your data.
 i) What type of variable(s) are you investigating (continuous, categorical, ordinal, etc)?
-We are investigating continuous variables.  
+
+We are investigating continuous variables.
 
 ii) What theoretical distribution that we have talked about would potentially be appropriate to use with
 these data (Normal, Binomial, Poisson. . . )
+
 For the scope learned in this class, we would anticipate it is a normal distribution.  However, the paper explicitly stated that these variables did not model a normal distribution due to failing a Shapiro-Wilk statistical test of normality.
 
 iii) Why is this an appropriate model for the data you are studying?
-Continuous variables cannot be in a binomal or Poisson as it is not a success/failure outcome.
+Continuous variables cannot be in a binomial or Poisson as it is not a success/failure outcome.
 
 \newpage
 
@@ -251,29 +255,45 @@ Continuous variables cannot be in a binomal or Poisson as it is not a success/fa
 the concept that you are demonstrating and interpret the findings. This may include code in R, a visual
 of some kind and text interpretation.
 
+We know from our summary statistics that the Glucose and Creatinine continuous response variables have fairly similar respective means and medians (Glucose mean of 96.08, median of 73.75; Creatinine mean of 9.712, median of 8.95), so we might suspect those variables to be normally distributed, since having equal mean and median is a property of that distribution. To help assess normality of these variables in our sample (n = 50), we generated histograms and QQ plots to assess the shape of the distributions. Next, we created a randomly generated normal distribution for each of the two variables using their respective means and standard deviations. Initially, we created these random distributions using a sample size equal to what was performed in our reference study. Observing that the distributions generated with such a small sample size were not necessarily normal distributions, we then created these same normal distributions, but used a larger sample size (n) of 200 to illustrate the Central Limit Theorem.
 
 
 ```{r normal-plots, echo = FALSE, warning = FALSE}
 histo_glucose <- ggplot(nn_data, aes(x = Glucose))+
   geom_histogram(binwidth = 50) +
-  theme_minimal(base_size = 15)
+  theme_minimal(base_size = 15) +
+  labs(
+    title = "Observed Glucose Data",
+    caption = "n=50"
+  )
+  
 histo_glucose
 
 histo_creat <- ggplot(nn_data, aes(x = Creatinine))+
   geom_histogram(binwidth = 1) +
-  theme_minimal(base_size = 15)
+  theme_minimal(base_size = 15) +
+  labs(
+    title = "Observed Creatinine Data",
+    caption = "n=50"
+  )
 histo_creat
 
 qq_plot_glucose <- ggplot(nn_data, aes(sample = Glucose)) + 
   stat_qq() +
   stat_qq_line() +
-  theme_minimal(base_size = 15)
+  theme_minimal(base_size = 15)+
+  labs(
+    title = "QQ Plot for Glucose normality"
+  )
 qq_plot_glucose
 
 qq_plot_creat <- ggplot(nn_data, aes(sample = Creatinine)) + 
   stat_qq() +
   stat_qq_line() +
-  theme_minimal(base_size = 15)
+  theme_minimal(base_size = 15) + 
+  labs(
+    title = "QQ Plot for Creatinine normality"
+  )
 qq_plot_creat
 
 ```
@@ -283,38 +303,59 @@ qq_plot_creat
 
 # G_mean = 96.08, sd = 80.4045, C_mean = 9.712, sd = 3.415
 
+# glucose normals
+
 glucose_normal_nSmall <- rnorm(50, 96.08, 80.4045)
 glucose_normal_nBig <- rnorm(200, 96.08, 80.4045)
 glucose_normal_nSmall <- data.frame(glucose_normal_nSmall)
 glucose_normal_nBig <- data.frame(glucose_normal_nBig)
-creatinine_normal <- rnorm(50, 9.712, 3.415)
-creatinine_normal <- data.frame(creatinine_normal)
+
+# creatinine normals
+
+creatinine_normal_nSmall <- rnorm(50, 9.712, 3.415)
+creatinine_normal_nBig <- rnorm(200, 9.712, 3.415)
+creatinine_normal_nSmall <- data.frame(creatinine_normal_nSmall)
+creatinine_normal_nBig <- data.frame(creatinine_normal_nBig)
+
+# histograms
 
 histo_gluc_norm_small <- ggplot(glucose_normal_nSmall, aes(glucose_normal_nSmall))+
   geom_histogram(binwidth = 10) +
-  theme_minimal(base_size = 15)
+  theme_minimal(base_size = 15) +
+  labs(
+    title = "Glucose generated normal Histogram"
+    caption = "Small sample sizes (n=50)"
+  )
 histo_gluc_norm_small
 
 histo_gluc_norm_big <- ggplot(glucose_normal_nBig, aes(glucose_normal_nBig))+
   geom_histogram(binwidth = 10) +
-  theme_minimal(base_size = 15)
+  theme_minimal(base_size = 15) +
+  labs(
+    title = "Glucose generated normal Histogram",
+    caption = "Large sample sizes (n=200)"
+  )
 histo_gluc_norm_big
 
 
-histo_creat_norm <- ggplot(creatinine_normal, aes(creatinine_normal))+
+histo_creat_norm_nSmall <- ggplot(creatinine_normal_nSmall, aes(creatinine_normal_nSmall))+
   geom_histogram(binwidth = 1) +
-  theme_minimal(base_size = 15)
-histo_creat_norm_small
-# fill this in
+  theme_minimal(base_size = 15) +
+  labs(
+    title = "Creatinine generated normal Histogram",
+    caption = "Small sample sizes (n=50)"
+  )
+histo_creat_norm_nSmall
 
-histo_creat_norm_big
-# fill this in
-
+histo_creat_norm_nBig <- ggplot(creatinine_normal_nBig, aes(creatinine_normal_nBig))+
+  geom_histogram(binwidth = 1) +
+  theme_minimal(base_size = 15) +
+  labs(
+    title = "Creatinine generated normal Histogram",
+    caption = "Large sample sizes (n=200)"
+  )
+histo_creat_norm_nBig
 ```
-## Question 4
-
-We know from our summary statistics that the Glucose and Creatinine continuous response variables have fairly similar respective means and medians (Glucose mean of 96.08, median of 73.75; Creatinine mean of 9.712, median of 8.95), so we might suspect those variables to be normally distributed, since having equal mean and median is a property of that distribution. To help assess normality of these variables in our sample (n = 50), we generated histograms and QQ plots to assess the shape of the distributions. Next, we created a randomly generated normal distribution for each of the two variables using their respective means and standard deviations. Initially, we created these random distributions using a sample size equal to what was performed in our reference study. Observing that the distributions generated with such a small sample size were not necessarily normal distributions, we then created these same normal distributions, but used a larger sample size (n) of 200 to illustrate the Central Limit Theorem.
-
 
 \newpage
 
