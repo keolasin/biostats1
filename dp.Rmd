@@ -323,7 +323,7 @@ histo_gluc_norm_small <- ggplot(glucose_normal_nSmall, aes(glucose_normal_nSmall
   geom_histogram(binwidth = 10) +
   theme_minimal(base_size = 15) +
   labs(
-    title = "Glucose generated normal Histogram"
+    title = "Glucose generated normal Histogram",
     caption = "Small sample sizes (n=50)"
   )
 histo_gluc_norm_small
