@@ -1,7 +1,7 @@
 ---
-title: "Data Project Part 2: Exploring relationship between exposure to Uranium and Renal Disease"
+title: "Data Project Part 3: Exploring relationship between exposure to Uranium and Renal Disease"
 author: "Castle Funatake, Vicki Ip, Meredith Potts, Matthew Reyes, Anastasia Roloff"
-date: "04/03/2022"
+date: "04/27/2022"
 output: pdf_document
 ---
 
@@ -332,3 +332,96 @@ histo_creat_norm_nBig
 ```
 
 \newpage
+
+## Part 3 Questions
+
+### Question 1: Identify a statistical test to apply to your data (must be a concept we covered in part III of the course). In plain language, write the question you are trying to answer.
+
+We'll do a two-sample t-test of mean Glucose levels (response variable), based on high and low uranium exposure (exposure).
+
+\newpage
+
+### Question 2: What assumptions are required by the method you chose in 5.1? Show how you assessed whether these assumptions are met by your dataset.
+
+We feel comfortable running this test statistic since the collected data are, based on previous data project sections:
+
+1. approximately normal,
+2. sufficient sample size (n),
+3. independent variables,
+4. simple random samples,
+5. and, mostly free of outliers.
+
+When running our statistic, we'll exclude the two values that we suspect are possible outliers (Glucose >350)
+
+\newpage
+
+### Question 3: Explain why this test is appropriate for the data you have and the question you are trying to answer. Use at least one visualization technique and include both the output and the R code that generated it.
+
+We're looking at two continuous variables, with Glucose being the first, and Uranium, but we've sorted Uranium categorically based on high or low exposure. As well, they're independent variables, and we want a parametric test statistic because the we don't have population level data for comparison, thus we use a two-sample t-test.
+
+```{r t-test vis}
+
+# uranium intake log transformed, Glucose left alone, removing 2 outliers of Glucose > 350
+nn_data_logged_filtered <- nn_data_logged %>%
+  filter( Glucose < 350)
+
+# High and low uranium exposure for histogram data vis
+nn_data_high <- nn_data_logged_filtered %>%
+  filter(Exp_Level == "H")
+nn_data_low <- nn_data_logged_filtered %>%
+  filter(Exp_Level == "L")
+
+# red = high, blue = low
+comparison_histogram <- ggplot()+
+  geom_histogram(data = nn_data_high, aes(x = Glucose, color = Exp_Level), alpha = 0.5, binwidth = 25) +
+  geom_histogram(data = nn_data_low, aes(x = Glucose, color = Exp_Level), alpha = 0.5, binwidth = 25) +
+  theme_minimal(base_size = 15) +
+  labs(
+    title = "Observed Glucose Data",
+    caption = "Removed 2 outliers for the Uranium High exposure group where Glucose > 350"
+  )
+comparison_histogram
+```
+
+\newpage
+
+### Question 4: Clearly state the null and alternative hypotheses for this test.
+
+*Null hypothesis:* For the two groups (high and low uranium exposure), the mean Glucose level will be equal.
+*Alternate hypothesis:* For the two groups (high and low uranium exposure), the mean Glucose level will not be equal.
+
+\newpage
+
+### Question 5: Include the R code you used to generate your results. Annotate your code to help us follow your reasoning.
+
+```{r two sample t-test}
+
+# Glucose is the response variable, compared by the categorical variable of Exp_Level, using the nn_data set but filtered first to remove two possible outliers.
+t.test(Glucose ~ Exp_Level, data = nn_data_logged_filtered)
+```
+
+\newpage
+
+### Question 6: Present your results in a clear summary. This should include both a text summary and a table or figure with appropriate labeling.
+
+From our analysis, the two-sample t-test statistic was 3.2503, with a p-value of 0.0023, a 95% confidence interval for the difference of the means between 14.72 and 63.12 mg/Day.
+
+#### Table 1:
+
+|       | t-test statistic | p-value  | 95% CI (difference between means) | High Exposure,<br> Mean Glucose | Low Exposure,<br> Mean Glucose |
+|-------|------------------|----------|-----------------------------------|--------------------------------|-------------------------------|
+| Value | 3.2503           | 0.002338 | 14.72, 63.12                      | 99.32857                       | 60.41000                      |
+
+\newpage
+
+### Question 7: Interpret your findings. Include a statement about the evidence, your conclusions, and the generalizability of your findings.
+
+Based on these results, we would say that the p-value of 0.0023 and 95% CI mean we have evidence to reject the null hypothesis, and that there is a significant difference in mean Glucose level between low- and high- uranium exposure. High glucose levels in urine is not typical physiologically in healthy individuals. This supports the idea that human health can be affected by uranium exposure, likely indicating kidney damage and injury associated with these elevated glucose levels. 
+
+The dataset we used likely may not be generalized beyond the study population, since the study population consisted of individuals living in Canada, it was such a small sample size (n=50), and half of those individuals were those living in a specific city, while the other half were a rural community (a Nova Scotian village) living nearby to known uranium contaminated water sources. However, it still does provide useful evidence that there is an association of uranium exposure and kidney damage, that can inform future research for other target populations and communities dealing with contaminated water sources such as the Navajo Nation.
+
+\newpage
+
+#### Attributions
+
+*Contributors:* All team members led the production of this manuscript and Matthew Reyes had primary responsibility for the composition. Vicki Ip contributed revisions and had primary responsibility for coordinating with our Graduate Student Instructor throughout the course. The corresponding author attests that all listed authors meet authorship criteria and that no others meeting the criteria have been omitted.
